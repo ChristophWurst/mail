@@ -81,7 +81,7 @@ define(function(require) {
 		this.requestNotificationPermissions();
 		this.setUpSearch();
 
-		$.when(AccountController.loadAccounts()).done(function(accounts) {
+		$.when(AccountController.loadAccounts()).then(function(accounts) {
 			this.router = new Router({
 				controller: new RouteController(accounts)
 			});

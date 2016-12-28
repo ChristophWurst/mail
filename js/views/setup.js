@@ -149,7 +149,7 @@ define(function(require) {
 				Radio.ui.trigger('navigation:show');
 				Radio.ui.trigger('content:loading');
 				// reload accounts
-				$.when(AccountController.loadAccounts()).done(function(accounts) {
+				$.when(AccountController.loadAccounts()).then(function(accounts) {
 					// Let's assume there's at least one account after a successful
 					// setup, so let's show the first one (could be the unified inbox)
 					var firstAccount = accounts.first();
