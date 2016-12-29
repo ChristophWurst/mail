@@ -29,23 +29,25 @@ define(function(require) {
 	 */
 	function loadAccounts() {
 		return new Promise(function(resolve, reject) {
-			var fetchingAccounts = Radio.account.request('entities');
-
 			// Do not show sidebar content until everything has been loaded
 			Radio.ui.trigger('sidebar:loading');
 
-			$.when(fetchingAccounts).done(function(accounts) {
+			Radio.account.request('entities').then(function(accounts) {
 				if (accounts.length === 0) {
-					resolve(accounts);
 					Radio.navigation.trigger('setup');
 
 					Radio.ui.trigger('sidebar:accounts');
+					resolve(accounts);
 				} else {
-					var loadingAccounts = accounts.map(function(account) {
+					var loadingAccounts = accounts.map(function(
+						account) {
 						return FolderController.loadAccountFolders(account);
 					});
 					$.when.apply($, loadingAccounts).done(function() {
 						resolve(accounts);
+					});
+					$.when.apply($, loadingAccounts).fail(function() {
+						reject();
 					});
 					$.when.apply($, loadingAccounts).always(function() {
 						// Show accounts regardless of the result of
@@ -55,8 +57,7 @@ define(function(require) {
 				}
 
 				startBackgroundChecks(accounts);
-			});
-			$.when(fetchingAccounts).fail(function() {
+			}).catch(function() {
 				Radio.ui.trigger('error:show', t('mail', 'Error while loading the accounts.'));
 
 				// Show the accounts vie (again) on error to allow user to delete their failing accounts

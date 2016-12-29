@@ -143,29 +143,28 @@ define(function(require) {
 			}
 
 			this.loading = true;
-			var creatingAccount = Radio.account.request('create', config);
-
-			$.when(creatingAccount).done(function() {
-				Radio.ui.trigger('navigation:show');
-				Radio.ui.trigger('content:loading');
-				// reload accounts
-				$.when(AccountController.loadAccounts()).then(function(accounts) {
-					// Let's assume there's at least one account after a successful
-					// setup, so let's show the first one (could be the unified inbox)
-					var firstAccount = accounts.first();
-					var firstFolder = firstAccount.folders.first();
-					Radio.navigation.trigger('folder', firstAccount.get('accountId'), firstFolder.get('id'));
-				});
-			});
-
 			var _this = this;
-			$.when(creatingAccount).fail(function(error) {
-				_this.loading = false;
-				Radio.ui.trigger('error:show', error);
-				_this.getUI('iconLoading').hide();
-				_this.getUI('inputs').prop('disabled', false);
-				_this.getUI('submitButton').val(t('mail', 'Connect'));
-			});
+			Radio.account.request('create', config)
+				.then(function() {
+					Radio.ui.trigger('navigation:show');
+					Radio.ui.trigger('content:loading');
+					// reload accounts
+					$.when(AccountController.loadAccounts()).
+						then(function(accounts) {
+							// Let's assume there's at least one account after a successful
+							// setup, so let's show the first one (could be the unified inbox)
+							var firstAccount = accounts.first();
+							var firstFolder = firstAccount.folders.first();
+							Radio.navigation.trigger('folder', firstAccount.get('accountId'), firstFolder.get('id'));
+						});
+				})
+				.catch(function(error) {
+					_this.loading = false;
+					Radio.ui.trigger('error:show', error);
+					_this.getUI('iconLoading').hide();
+					_this.getUI('inputs').prop('disabled', false);
+					_this.getUI('submitButton').val(t('mail', 'Connect'));
+				});
 		},
 		onImapSslModeChange: function() {
 			// set standard port for the selected IMAP & SMTP security

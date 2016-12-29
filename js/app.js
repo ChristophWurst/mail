@@ -81,12 +81,14 @@ define(function(require) {
 		this.requestNotificationPermissions();
 		this.setUpSearch();
 
-		$.when(AccountController.loadAccounts()).then(function(accounts) {
-			this.router = new Router({
-				controller: new RouteController(accounts)
+		var _this = this;
+		AccountController.loadAccounts()
+			.then(function(accounts) {
+				_this.router = new Router({
+					controller: new RouteController(accounts)
+				});
+				Backbone.history.start();
 			});
-			Backbone.history.start();
-		});
 
 		/**
 		 * Detects pasted text by browser plugins, and other software.
