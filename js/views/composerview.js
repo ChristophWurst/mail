@@ -313,8 +313,7 @@ define(function(require) {
 				options.folder = this.folder;
 			}
 
-			var sendingMessage = Radio.message.request('send', this.account, this.getMessage(), options);
-			$.when(sendingMessage).done(function() {
+			Radio.message.request('send', this.account, this.getMessage(), options).then(function() {
 				OC.Notification.showTemporary(t('mail', 'Message sent!'));
 
 				_this.$('#mail_new_message').prop('disabled', false);
@@ -333,8 +332,7 @@ define(function(require) {
 					}
 					_this.draftUID = null;
 				}
-			});
-			$.when(sendingMessage).fail(function(jqXHR) {
+			}).catch(function(jqXHR) {
 				var error = '';
 				if (jqXHR.status === 500) {
 					error = t('mail', 'Server error');
@@ -344,8 +342,7 @@ define(function(require) {
 				}
 				newMessageSend.prop('disabled', false);
 				OC.Notification.showTemporary(error);
-			});
-			$.when(sendingMessage).always(function() {
+			}).then(function() {
 				// remove loading feedback
 				newMessageBody.removeClass('icon-loading');
 				_this.$('.mail-account').prop('disabled', false);
@@ -380,19 +377,18 @@ define(function(require) {
 
 			// send the mail
 			var _this = this;
-			var savingDraft = Radio.message.request('draft', this.account, this.getMessage(), {
+			Radio.message.request('draft', this.account, this.getMessage(), {
 				folder: this.folder,
 				repliedMessage: this.repliedMessage,
 				draftUID: this.draftUID
-			});
-			$.when(savingDraft).done(function(data) {
+			}).then(function(data) {
 				if (_.isFunction(onSuccess)) {
 					onSuccess();
 				}
 				_this.draftUID = data.uid;
-			});
-			$.when(savingDraft).fail(function() {
+			}).catch(function() {
 				// TODO: show error
+				console.error('saving draft failed');
 			});
 			return false;
 		},

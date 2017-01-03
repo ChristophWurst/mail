@@ -145,9 +145,7 @@ define(function(require) {
 
 			// really delete the message
 			var account = require('state').currentAccount;
-			var deleting = Radio.message.request('delete', account, folder, this.model);
-
-			$.when(deleting).fail(function() {
+			Radio.message.request('delete', account, folder, this.model).catch(function() {
 				// TODO: move to controller
 				Radio.ui.trigger('error:show', t('mail', 'Error while deleting message.'));
 

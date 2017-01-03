@@ -55,22 +55,19 @@ define(function(require) {
 			options.cache = false;
 		}
 
-		var defer = $.Deferred();
+		var url = OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages', {
+			accountId: account.get('accountId'),
+			folderId: folder.get('id')
+		});
 
-		if (options.cache && folder.get('messagesLoaded')) {
-			defer.resolve(folder.messages, true);
-			return defer.promise();
-		}
+		return new Promise(function(resolve, reject) {
+			if (options.cache && folder.get('messagesLoaded')) {
+				resolve(folder.messages, true);
+				return;
+			}
 
-		var url = OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages',
-			{
-				accountId: account.get('accountId'),
-				folderId: folder.get('id')
-			});
-
-		// TODO: folder.messages.fetch()
-		$.ajax(url,
-			{
+			// TODO: folder.messages.fetch()
+			$.ajax(url, {
 				data: {
 					from: options.from,
 					to: options.to,
@@ -83,16 +80,15 @@ define(function(require) {
 					}
 					folder.addMessages(messages);
 					folder.set('messagesLoaded', true);
-					defer.resolve(collection, false);
+					resolve(collection, false);
 				},
 				error: function(error, status) {
 					if (status !== 'abort') {
-						defer.reject(error);
+						reject(error);
 					}
 				}
 			});
-
-		return defer.promise();
+		});
 	}
 
 	/**
@@ -109,35 +105,33 @@ define(function(require) {
 		};
 		_.defaults(options, defaults);
 
-		var defer = $.Deferred();
-
-		// Load cached version if available
-		var message = require('cache').getMessage(account,
-			folder,
-			messageId);
-		if (message) {
-			defer.resolve(message);
-			return defer.promise();
-		}
-
-		var url = OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages/{messageId}', {
-			accountId: account.get('accountId'),
-			folderId: folder.get('id'),
-			messageId: messageId
-		});
-		$.ajax(url, {
-			type: 'GET',
-			success: function(message) {
-				defer.resolve(message);
-			},
-			error: function(jqXHR, textStatus) {
-				if (textStatus !== 'abort') {
-					defer.reject();
-				}
+		return new Promise(function(resolve, reject) {
+			// Load cached version if available
+			var message = require('cache').getMessage(account,
+				folder,
+				messageId);
+			if (message) {
+				resolve(message);
+				return;
 			}
-		});
 
-		return defer.promise();
+			var url = OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages/{messageId}', {
+				accountId: account.get('accountId'),
+				folderId: folder.get('id'),
+				messageId: messageId
+			});
+			$.ajax(url, {
+				type: 'GET',
+				success: function(message) {
+					resolve(message);
+				},
+				error: function(jqXHR, textStatus) {
+					if (textStatus !== 'abort') {
+						reject();
+					}
+				}
+			});
+		});
 	}
 
 	/**
@@ -147,8 +141,6 @@ define(function(require) {
 	 * @returns {undefined}
 	 */
 	function fetchMessageBodies(account, folder, messageIds) {
-		var defer = $.Deferred();
-
 		var cachedMessages = [];
 		var uncachedIds = [];
 		_.each(messageIds, function(messageId) {
@@ -160,30 +152,30 @@ define(function(require) {
 			}
 		});
 
-		if (uncachedIds.length > 0) {
-			var Ids = uncachedIds.join(',');
-			var url = OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages?ids={ids}', {
-				accountId: account.get('accountId'),
-				folderId: folder.get('id'),
-				ids: Ids
-			});
-			$.ajax(url, {
-				type: 'GET',
-				success: function(data) {
-					defer.resolve(data);
-				},
-				error: function() {
-					defer.reject();
-				}
-			});
-		}
-
-		return defer.promise();
+		return new Promise(function(resolve, reject) {
+			if (uncachedIds.length > 0) {
+				var Ids = uncachedIds.join(',');
+				var url = OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages?ids={ids}', {
+					accountId: account.get('accountId'),
+					folderId: folder.get('id'),
+					ids: Ids
+				});
+				$.ajax(url, {
+					type: 'GET',
+					success: function(data) {
+						resolve(data);
+					},
+					error: function() {
+						reject();
+					}
+				});
+			} else {
+				resovle([]);
+			}
+		});
 	}
 
 	function flagMessage(account, folder, message, flag, value) {
-		var defer = $.Deferred();
-
 		var flags = [flag, value];
 		var url = OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages/{messageId}/flags',
 			{
@@ -191,20 +183,21 @@ define(function(require) {
 				folderId: folder.get('id'),
 				messageId: message.id
 			});
-		$.ajax(url, {
-			type: 'PUT',
-			data: {
-				flags: _.object([flags])
-			},
-			success: function() {
-				defer.resolve();
-			},
-			error: function() {
-				defer.reject();
-			}
-		});
 
-		return defer.promise();
+		return new Promise(function(resolve, reject) {
+			$.ajax(url, {
+				type: 'PUT',
+				data: {
+					flags: _.object([flags])
+				},
+				success: function() {
+					resolve();
+				},
+				error: function() {
+					reject();
+				}
+			});
+		});
 	}
 
 	/**
@@ -217,39 +210,36 @@ define(function(require) {
 	 */
 	function moveMessage(sourceAccount, sourceFolder, message, destAccount,
 		destFolder) {
-		var defer = $.Deferred();
-
 		var url = OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages/{messageId}/move', {
 			accountId: sourceAccount.get('accountId'),
 			folderId: sourceFolder.get('id'),
 			messageId: message.get('id')
 		});
-		$.ajax(url, {
-			type: 'POST',
-			data: {
-				destAccountId: destAccount.get('accountId'),
-				destFolderId: destFolder.get('id')
-			},
-			success: function() {
-				defer.resolve();
-			},
-			error: function() {
-				defer.reject();
-			}
-		});
 
-		return defer.promise();
+		return new Promise(function(resolve, reject) {
+			$.ajax(url, {
+				type: 'POST',
+				data: {
+					destAccountId: destAccount.get('accountId'),
+					destFolderId: destFolder.get('id')
+				},
+				success: function() {
+					resolve();
+				},
+				error: function() {
+					reject();
+				}
+			});
+		});
 	}
 
 	/**
 	 * @param {Account} account
 	 * @param {object} message
 	 * @param {object} options
-	 * @returns {undefined}
+	 * @returns {Promise}
 	 */
 	function sendMessage(account, message, options) {
-		var defer = $.Deferred();
-
 		var defaultOptions = {
 			draftUID: null,
 			aliasId: null
@@ -258,46 +248,45 @@ define(function(require) {
 		var url = OC.generateUrl('/apps/mail/accounts/{id}/send', {
 			id: account.get('id')
 		});
-		var data = {
-			type: 'POST',
-			success: function(data) {
-				if (!!options.repliedMessage) {
-					// Reply -> flag message as replied
-					Radio.ui.trigger('messagesview:messageflag:set', options.repliedMessage.get('id'), 'answered', true);
+
+		return new Promise(function(resolve, reject) {
+			var data = {
+				type: 'POST',
+				success: function(data) {
+					if (!!options.repliedMessage) {
+						// Reply -> flag message as replied
+						Radio.ui.trigger('messagesview:messageflag:set', options.repliedMessage.get('id'), 'answered', true);
+					}
+
+					resolve(data);
+				},
+				error: function(xhr) {
+					reject(xhr);
+				},
+				data: {
+					to: message.to,
+					cc: message.cc,
+					bcc: message.bcc,
+					subject: message.subject,
+					body: message.body,
+					attachments: message.attachments,
+					folderId: options.repliedMessage ? options.repliedMessage.get('folderId') : undefined,
+					messageId: options.repliedMessage ? options.repliedMessage.get('messageId') : undefined,
+					draftUID: options.draftUID,
+					aliasId: options.aliasId
 				}
-
-				defer.resolve(data);
-			},
-			error: function(xhr) {
-				defer.reject(xhr);
-			},
-			data: {
-				to: message.to,
-				cc: message.cc,
-				bcc: message.bcc,
-				subject: message.subject,
-				body: message.body,
-				attachments: message.attachments,
-				folderId: options.repliedMessage ? options.repliedMessage.get('folderId') : undefined,
-				messageId: options.repliedMessage ? options.repliedMessage.get('messageId') : undefined,
-				draftUID: options.draftUID,
-				aliasId: options.aliasId
-			}
-		};
-		$.ajax(url, data);
-
-		return defer.promise();
+			};
+			$.ajax(url, data);
+		});
 	}
 
 	/**
 	 * @param {Account} account
 	 * @param {object} message
 	 * @param {object} options
-	 * @returns {undefined}
+	 * @returns {Promise}
 	 */
 	function saveDraft(account, message, options) {
-		var defer = $.Deferred();
-
 		var defaultOptions = {
 			folder: null,
 			messageId: null,
@@ -318,93 +307,93 @@ define(function(require) {
 		});
 		// END TODO
 
-		if (emptyMessage) {
-			if (options.draftUID !== null) {
-				// Message is empty + previous draft exists -> delete it
-				var draftsFolder = account.get('specialFolders').drafts;
-				var deleteUrl =
-					OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages/{messageId}', {
-						accountId: account.get('accountId'),
-						folderId: draftsFolder,
-						messageId: options.draftUID
+		return new Promise(function(resolve, reject) {
+			if (emptyMessage) {
+				if (options.draftUID !== null) {
+					// Message is empty + previous draft exists -> delete it
+					var draftsFolder = account.get('specialFolders').drafts;
+					var deleteUrl =
+						OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages/{messageId}', {
+							accountId: account.get('accountId'),
+							folderId: draftsFolder,
+							messageId: options.draftUID
+						});
+					$.ajax(deleteUrl, {
+						type: 'DELETE'
 					});
-				$.ajax(deleteUrl, {
-					type: 'DELETE'
-				});
-			}
-			defer.resolve({
-				uid: null
-			});
-		} else {
-			var url = OC.generateUrl('/apps/mail/accounts/{id}/draft', {
-				id: account.get('accountId')
-			});
-			var data = {
-				type: 'POST',
-				success: function(data) {
-					if (options.draftUID !== null) {
-						// update UID in message list
-						var collection = Radio.ui.request('messagesview:collection');
-						var message = collection.findWhere({id: options.draftUID});
-						if (message) {
-							message.set({id: data.uid});
-							collection.set([message], {remove: false});
-						}
-					}
-					defer.resolve(data);
-				},
-				error: function() {
-					defer.reject();
-				},
-				data: {
-					to: message.to,
-					cc: message.cc,
-					bcc: message.bcc,
-					subject: message.subject,
-					body: message.body,
-					attachments: message.attachments,
-					folderId: options.folder ? options.folder.get('id') : null,
-					messageId: options.repliedMessage ? options.repliedMessage.get('id') : null,
-					uid: options.draftUID
 				}
-			};
-			$.ajax(url, data);
-		}
-		return defer.promise();
+				resolve({
+					uid: null
+				});
+			} else {
+				var url = OC.generateUrl('/apps/mail/accounts/{id}/draft', {
+					id: account.get('accountId')
+				});
+				var data = {
+					type: 'POST',
+					success: function(data) {
+						if (options.draftUID !== null) {
+							// update UID in message list
+							var collection = Radio.ui.request('messagesview:collection');
+							var message = collection.findWhere({id: options.draftUID});
+							if (message) {
+								message.set({id: data.uid});
+								collection.set([message], {remove: false});
+							}
+						}
+						resolve(data);
+					},
+					error: function() {
+						reject();
+					},
+					data: {
+						to: message.to,
+						cc: message.cc,
+						bcc: message.bcc,
+						subject: message.subject,
+						body: message.body,
+						attachments: message.attachments,
+						folderId: options.folder ? options.folder.get('id') : null,
+						messageId: options.repliedMessage ? options.repliedMessage.get('id') : null,
+						uid: options.draftUID
+					}
+				};
+				$.ajax(url, data);
+			}
+		});
 	}
 
 	/**
 	 * @param {Account} account
 	 * @param {Folder} folder
 	 * @param {Message} message
-	 * @returns {Deferred}
+	 * @returns {Promise}
 	 */
 	function deleteMessage(account, folder, message) {
-		var defer = $.Deferred();
-
 		var url = OC.generateUrl('apps/mail/accounts/{accountId}/folders/{folderId}/messages/{messageId}', {
 			accountId: require('state').currentAccount.get('accountId'),
 			folderId: require('state').currentFolder.get('id'),
 			messageId: message.get('id')
 		});
-		$.ajax(url, {
-			data: {},
-			type: 'DELETE',
-			success: function() {
-				var cache = require('cache');
-				var state = require('state');
-				cache.removeMessage(state.currentAccount, state.currentFolder, message.get('id'));
 
-				defer.resolve();
-			},
-			error: function() {
-				// Add the message to the collection again
-				folder.addMessage(message);
+		return new Promise(function(resolve, reject) {
+			$.ajax(url, {
+				data: {},
+				type: 'DELETE',
+				success: function() {
+					var cache = require('cache');
+					var state = require('state');
+					cache.removeMessage(state.currentAccount, state.currentFolder, message.get('id'));
 
-				defer.reject();
-			}
+					resolve();
+				},
+				error: function() {
+					// Add the message to the collection again
+					folder.addMessage(message);
+
+					reject();
+				}
+			});
 		});
-
-		return defer.promise();
 	}
 });
