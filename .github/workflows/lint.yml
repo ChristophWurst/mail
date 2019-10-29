@@ -5,17 +5,25 @@ on: [push]
 jobs:
   php-linters:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ['7.1', '7.2', '7.3']
+	name: php${{ matrix.php-versions }} lint
     steps:
-    - uses: actions/checkout@v1
-    - name: Version
-      run: php -v
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: Set up php${{ matrix.php-versions }}
+      uses: shivammathur/setup-php@master
+      with:
+        php-version: ${{ matrix.php-versions }}
+        coverage: none
     - name: Lint
       run: composer run lint
   node-linters:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
+    - uses: actions/checkout@master
+    - name: Set up Node
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
