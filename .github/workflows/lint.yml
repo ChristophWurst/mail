@@ -11,3 +11,17 @@ jobs:
       run: php -v
     - name: Lint
       run: composer run lint
+  node-linters:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: npm install
+      run: npm ci
+    - name: eslint
+      run: npm run lint
+    env:
+      CI: true
