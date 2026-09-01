@@ -11,6 +11,7 @@ namespace OCA\Mail\Service;
 
 use OCA\Mail\Account;
 use OCA\Mail\Attachment;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\Mailbox;
 use OCA\Mail\Db\MailboxMapper;
 use OCA\Mail\Db\Message;
@@ -37,7 +38,7 @@ use Psr\Log\LoggerInterface;
 use function array_map;
 use function array_values;
 
-class MailManager {
+class MailManager implements IMailManager {
 
 	public function __construct(
 		private readonly MailboxMapper $mailboxMapper,
@@ -57,6 +58,7 @@ class MailManager {
 	/**
 	 * @throws ClientException
 	 */
+	#[\Override]
 	public function getMailbox(string $uid, int $id): Mailbox {
 		try {
 			return $this->mailboxMapper->findByUid($id, $uid);
@@ -72,6 +74,7 @@ class MailManager {
 	 * @return Mailbox[]
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function getMailboxes(Account $account, bool $forceSync = false): array {
 		$this->protocolFactory
 			->mailboxConnector($account)
@@ -84,6 +87,7 @@ class MailManager {
 	 * @throws ServiceException
 	 * @throws DoesNotExistException the mailbox could not be re-read after being created on the remote (IMAP-backed accounts only)
 	 */
+	#[\Override]
 	public function createMailbox(Account $account, string $name, array $specialUse = []): Mailbox {
 		return $this->protocolFactory
 			->mailboxConnector($account)
@@ -93,6 +97,7 @@ class MailManager {
 	/**
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function renameMailbox(Account $account, Mailbox $mailbox, string $name): Mailbox {
 		return $this->protocolFactory
 			->mailboxConnector($account)
@@ -102,6 +107,7 @@ class MailManager {
 	/**
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function deleteMailbox(Account $account, Mailbox $mailbox): void {
 		$this->protocolFactory
 			->mailboxConnector($account)
@@ -112,6 +118,7 @@ class MailManager {
 	 * @throws ServiceException
 	 * @throws DoesNotExistException the mailbox could not be re-read after being updated on the remote (IMAP-backed accounts only)
 	 */
+	#[\Override]
 	public function updateSubscription(Account $account, Mailbox $mailbox, bool $subscribed): Mailbox {
 		return $this->protocolFactory
 			->mailboxConnector($account)
@@ -122,6 +129,7 @@ class MailManager {
 	 * @throws ClientException
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function clearMailbox(Account $account, Mailbox $mailbox): void {
 		$uids = $this->dbMessageMapper->findAllUids($mailbox);
 		if ($uids === []) {
@@ -137,6 +145,7 @@ class MailManager {
 	/**
 	 * @throws DoesNotExistException
 	 */
+	#[\Override]
 	public function getMessage(string $uid, int $id): Message {
 		return $this->dbMessageMapper->findByUserId($uid, $id);
 	}
@@ -146,6 +155,7 @@ class MailManager {
 	 * @throws ServiceException
 	 * @throws SmimeDecryptException
 	 */
+	#[\Override]
 	public function getImapMessage(Account $account, Mailbox $mailbox, Message $message, bool $loadBody = false): IMAPMessage {
 		$messages = $this->protocolFactory
 			->messageConnector($account)
@@ -166,6 +176,7 @@ class MailManager {
 	 * @throws ServiceException
 	 * @throws SmimeDecryptException
 	 */
+	#[\Override]
 	public function getImapMessages(Account $account, Mailbox $mailbox, bool $loadBody = false, Message ...$messages): array {
 		return $this->protocolFactory
 			->messageConnector($account)
@@ -182,6 +193,7 @@ class MailManager {
 	 * @throws ClientException
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function getRawMessage(Account $account, Mailbox $mailbox, Message $message): ?string {
 		$raw = $this->protocolFactory
 			->messageConnector($account)
@@ -192,6 +204,7 @@ class MailManager {
 		return $raw;
 	}
 
+	#[\Override]
 	public function getMessageIdForUid(Mailbox $mailbox, $uid): ?int {
 		return $this->dbMessageMapper->getIdForUid($mailbox, $uid);
 	}
@@ -199,6 +212,7 @@ class MailManager {
 	/**
 	 * @return Message[]
 	 */
+	#[\Override]
 	public function getMessagesByMessageId(Account $account, string $messageId): array {
 		return $this->dbMessageMapper->findByMessageId($account, $messageId);
 	}
@@ -207,6 +221,7 @@ class MailManager {
 	 * @return int[]
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function findMessages(Account $account, Mailbox $mailbox, SearchQuery $searchQuery): array {
 		return $this->protocolFactory
 			->messageConnector($account)
@@ -223,6 +238,7 @@ class MailManager {
 	 * @return ?int the new UID (or null if couldn't be determined)
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function moveMessage(Account $sourceAccount, Mailbox $sourceMailbox, Message $message, Account $destinationAccount, Mailbox $destinationMailbox): ?int {
 		if ($sourceAccount->getId() !== $destinationAccount->getId()) {
 			throw new ServiceException('It is not possible to move across accounts yet');
@@ -236,6 +252,7 @@ class MailManager {
 	/**
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function moveMessages(Account $account, Mailbox $targetMailbox, Mailbox $sourceMailbox, Message ...$messages): array {
 		if ($messages === []) {
 			return [];
@@ -271,6 +288,7 @@ class MailManager {
 	 * @throws ServiceException
 	 * @todo evaluate if we should sync mailboxes first
 	 */
+	#[\Override]
 	public function deleteMessage(Account $account, Mailbox $mailbox, Message $message): void {
 		$this->deleteMessages($account, $mailbox, $message);
 	}
@@ -279,6 +297,7 @@ class MailManager {
 	 * @throws ClientException
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function deleteMessages(Account $account, Mailbox $sourceMailbox, Message ...$messages): void {
 		if ($messages === []) {
 			return;
@@ -332,6 +351,7 @@ class MailManager {
 	/**
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function flagMessages(Account $account, Mailbox $mailbox, string $flag, bool $value, Message ...$messages): void {
 		if ($messages === []) {
 			return;
@@ -353,6 +373,7 @@ class MailManager {
 	/**
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function tagMessages(Account $account, Mailbox $mailbox, Tag $tag, bool $value, Message ...$messages): void {
 		if ($messages === []) {
 			return;
@@ -369,6 +390,7 @@ class MailManager {
 	/**
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function markFolderAsRead(Account $account, Mailbox $mailbox): void {
 		// find all messages in mailbox with their remote ids
 		$messages = $this->dbMessageMapper->findByUids($mailbox, $this->dbMessageMapper->findAllUids($mailbox));
@@ -378,6 +400,7 @@ class MailManager {
 		$this->flagMessages($account, $mailbox, 'seen', true, ...$messages);
 	}
 
+	#[\Override]
 	public function getThread(Account $account, string $threadRootId): array {
 		return $this->dbMessageMapper->findThread($account, $threadRootId);
 	}
@@ -388,6 +411,7 @@ class MailManager {
 	 * @return array<string, Message> array of messages in the thread, keyed by remote id
 	 * @throws DoesNotExistException
 	 */
+	#[\Override]
 	public function fetchThread(Account $account, Mailbox $mailbox, string $threadRootId): array {
 		$mailAccount = $account->getMailAccount();
 		$messageInTrash = $mailbox->getId() === $mailAccount->getTrashMailboxId();
@@ -420,6 +444,7 @@ class MailManager {
 	 * @throws DoesNotExistException
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function moveThread(Account $srcAccount, Mailbox $srcMailbox, Account $dstAccount, Mailbox $dstMailbox, string $threadRootId): array {
 		if ($srcAccount->getId() !== $dstAccount->getId()) {
 			throw new ServiceException('It is not possible to move across accounts yet');
@@ -438,6 +463,7 @@ class MailManager {
 	 * @throws DoesNotExistException
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function deleteThread(Account $account, Mailbox $mailbox, string $threadRootId): void {
 		if ($account->getMailAccount()->getTrashMailboxId() === null) {
 			throw new TrashMailboxNotSetException();
@@ -460,6 +486,7 @@ class MailManager {
 	 * @throws DoesNotExistException
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function getMailAttachments(Account $account, Mailbox $mailbox, Message $message): array {
 		return $this->protocolFactory
 			->messageConnector($account)
@@ -476,6 +503,7 @@ class MailManager {
 	 * @throws DoesNotExistException
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function getMailAttachment(Account $account, Mailbox $mailbox, Message $message, string $attachmentId): Attachment {
 		return $this->protocolFactory
 			->messageConnector($account)
@@ -490,6 +518,7 @@ class MailManager {
 	 *
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function getQuota(Account $account): ?Quota {
 		return $this->protocolFactory
 			->messageConnector($account)
@@ -505,6 +534,7 @@ class MailManager {
 	 *
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function isPermflagsEnabled(Account $account, Mailbox $mailbox): bool {
 		return $this->protocolFactory
 			->messageConnector($account)
@@ -517,6 +547,7 @@ class MailManager {
 	 * @return Tag
 	 * @throws ClientException
 	 */
+	#[\Override]
 	public function getTagByLabel(string $imapLabel, string $userId): Tag {
 		try {
 			return $this->tagMapper->getTagByImapLabel($imapLabel, $userId);
@@ -528,6 +559,7 @@ class MailManager {
 	/**
 	 * @throws ClientException
 	 */
+	#[\Override]
 	public function createTag(string $displayName, string $color, string $userId): Tag {
 		try {
 			$imapLabel = $this->imapFlag->create($displayName);
@@ -558,6 +590,7 @@ class MailManager {
 	/**
 	 * @throws ClientException
 	 */
+	#[\Override]
 	public function updateTag(int $id, string $displayName, string $color, string $userId): Tag {
 		try {
 			$tag = $this->tagMapper->getTagForUser($id, $userId);
@@ -579,6 +612,7 @@ class MailManager {
 	 * @throws ClientException
 	 * @throws ServiceException
 	 */
+	#[\Override]
 	public function deleteTag(int $id, string $userId, array $accounts): Tag {
 		try {
 			$tag = $this->tagMapper->getTagForUser($id, $userId);
