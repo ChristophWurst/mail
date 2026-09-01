@@ -9,11 +9,11 @@ declare(strict_types=1);
 
 namespace OCA\Mail\Listener;
 
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\MailboxMapper;
 use OCA\Mail\Events\MessageFlaggedEvent;
 use OCA\Mail\Exception\ClientException;
 use OCA\Mail\Exception\ServiceException;
-use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -24,7 +24,7 @@ use Psr\Log\LoggerInterface;
  */
 class MoveJunkListener implements IEventListener {
 	public function __construct(
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private MailboxMapper $mailboxMapper,
 		private LoggerInterface $logger,
 	) {

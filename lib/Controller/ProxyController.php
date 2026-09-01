@@ -10,9 +10,9 @@ declare(strict_types=1);
 
 namespace OCA\Mail\Controller;
 
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Html\ProxyHmacGenerator;
 use OCA\Mail\Http\ProxyDownloadResponse;
-use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -43,7 +43,7 @@ class ProxyController extends Controller {
 		IClientService $clientService,
 		private ProxyHmacGenerator $hmacGenerator,
 		private LoggerInterface $logger,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private ?string $userId,
 	) {
 		parent::__construct($appName, $request);

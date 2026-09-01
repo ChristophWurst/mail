@@ -12,6 +12,7 @@ namespace OCA\Mail\Controller;
 
 use Horde_Imap_Client;
 use OCA\Mail\AppInfo\Application;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Contracts\IMailSearch;
 use OCA\Mail\Db\MailboxMapper;
 use OCA\Mail\Exception\ClientException;
@@ -22,7 +23,6 @@ use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\Http\TrapError;
 use OCA\Mail\Service\AccountService;
 use OCA\Mail\Service\DelegationService;
-use OCA\Mail\Service\MailManager;
 use OCA\Mail\Service\Sync\SyncService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -42,7 +42,7 @@ class MailboxesController extends Controller {
 		IRequest $request,
 		private AccountService $accountService,
 		private ?string $userId,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private SyncService $syncService,
 		private readonly IConfig $config,
 		private readonly ITimeFactory $timeFactory,

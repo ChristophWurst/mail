@@ -10,13 +10,13 @@ declare(strict_types=1);
 namespace OCA\Mail\BackgroundJob;
 
 use OCA\Mail\Account;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\MailAccountMapper;
 use OCA\Mail\Db\MailboxMapper;
 use OCA\Mail\Db\MessageMapper;
 use OCA\Mail\Db\MessageRetentionMapper;
 use OCA\Mail\Exception\ClientException;
 use OCA\Mail\Exception\ServiceException;
-use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
@@ -30,7 +30,7 @@ class TrashRetentionJob extends TimedJob {
 		private MessageRetentionMapper $messageRetentionMapper,
 		private MailAccountMapper $accountMapper,
 		private MailboxMapper $mailboxMapper,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 	) {
 		parent::__construct($time);
 

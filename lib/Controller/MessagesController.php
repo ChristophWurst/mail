@@ -14,6 +14,7 @@ use Exception;
 use OC\Security\CSP\ContentSecurityPolicyNonceManager;
 use OCA\Mail\Attachment;
 use OCA\Mail\Contracts\IDkimService;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Contracts\IMailSearch;
 use OCA\Mail\Contracts\IMailTransmission;
 use OCA\Mail\Contracts\ITrustedSenderService;
@@ -29,7 +30,6 @@ use OCA\Mail\Service\AccountService;
 use OCA\Mail\Service\AiIntegrations\AiIntegrationsService;
 use OCA\Mail\Service\DelegationService;
 use OCA\Mail\Service\ItineraryService;
-use OCA\Mail\Service\MailManager;
 use OCA\Mail\Service\SmimeService;
 use OCA\Mail\Service\SnoozeService;
 use OCP\AppFramework\Controller;
@@ -66,7 +66,7 @@ class MessagesController extends Controller {
 		string $appName,
 		IRequest $request,
 		private AccountService $accountService,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private IMailSearch $mailSearch,
 		private ItineraryService $itineraryService,
 		private ?string $userId,

@@ -30,6 +30,7 @@ use Horde_Smtp_Exception;
 use OCA\Mail\Account;
 use OCA\Mail\Address;
 use OCA\Mail\AddressList;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Contracts\IMailTransmission;
 use OCA\Mail\Db\LocalMessage;
 use OCA\Mail\Db\Mailbox;
@@ -69,7 +70,7 @@ class MailTransmission implements IMailTransmission {
 		private PerformanceLogger $performanceLogger,
 		private AliasesService $aliasesService,
 		private TransmissionService $transmissionService,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 	) {
 	}
 

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\Mail\Service;
 
 use OCA\Mail\Account;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Contracts\IMailTransmission;
 use OCA\Mail\Db\LocalMessage;
 use OCA\Mail\Db\LocalMessageMapper;
@@ -35,7 +36,7 @@ class DraftsService {
 		private AttachmentService $attachmentService,
 		IEventDispatcher $eventDispatcher,
 		private ProtocolFactory $protocolFactory,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private LoggerInterface $logger,
 		private AccountService $accountService,
 		ITimeFactory $time,

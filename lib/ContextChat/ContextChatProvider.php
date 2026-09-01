@@ -10,13 +10,13 @@ declare(strict_types=1);
 namespace OCA\Mail\ContextChat;
 
 use OCA\Mail\AppInfo\Application;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\Message;
 use OCA\Mail\Db\MessageMapper;
 use OCA\Mail\Events\MessageDeletedEvent;
 use OCA\Mail\Events\NewMessagesSynchronized;
 use OCA\Mail\Service\AccountService;
 use OCA\Mail\Service\ContextChat\TaskService;
-use OCA\Mail\Service\MailManager;
 use OCP\BackgroundJob\IJobList;
 use OCP\ContextChat\Events\ContentProviderRegisterEvent;
 use OCP\ContextChat\IContentManager;
@@ -38,7 +38,7 @@ class ContextChatProvider implements IContentProvider, IEventListener {
 	public function __construct(
 		private TaskService $taskService,
 		private AccountService $accountService,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private MessageMapper $messageMapper,
 		private IURLGenerator $urlGenerator,
 		private IUserManager $userManager,

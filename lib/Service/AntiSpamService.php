@@ -17,6 +17,7 @@ use OCA\Mail\Address;
 use OCA\Mail\AddressList;
 use OCA\Mail\AppInfo\Application;
 use OCA\Mail\ConfigLexicon;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\Mailbox;
 use OCA\Mail\Db\MessageMapper;
 use OCA\Mail\Exception\ClientException;
@@ -35,7 +36,7 @@ class AntiSpamService {
 
 	public function __construct(
 		private MessageMapper $dbMessageMapper,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private ProtocolFactory $protocolFactory,
 		private SmtpClientFactory $smtpClientFactory,
 		private ImapMessageMapper $messageMapper,

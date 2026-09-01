@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\Mail\Service;
 
 use OCA\Mail\Account;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\MailAccountMapper;
 use OCA\Mail\Db\Mailbox;
 use OCA\Mail\Db\MailboxMapper;
@@ -34,7 +35,7 @@ class SnoozeService {
 		private MessageSnoozeMapper $messageSnoozeMapper,
 		private MailAccountMapper $accountMapper,
 		private MailboxMapper $mailboxMapper,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private AccountService $accountService,
 	) {
 	}

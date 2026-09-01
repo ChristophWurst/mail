@@ -9,11 +9,11 @@ declare(strict_types=1);
 
 namespace OCA\Mail\BackgroundJob\ContextChat;
 
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\Service\AccountService;
 use OCA\Mail\Service\ContextChat\ContextChatSettingsService;
 use OCA\Mail\Service\ContextChat\TaskService;
-use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -29,7 +29,7 @@ class ScheduleJob extends TimedJob {
 		ITimeFactory $time,
 		private TaskService $taskService,
 		private AccountService $accountService,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private LoggerInterface $logger,
 		private IJobList $jobList,
 		private ContextChatSettingsService $contextChatSettingsService,

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\Mail\BackgroundJob\ContextChat;
 
 use OCA\Mail\ContextChat\ContextChatProvider;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\MailboxMapper;
 use OCA\Mail\Db\Message;
 use OCA\Mail\Db\MessageMapper;
@@ -17,7 +18,6 @@ use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\Exception\SmimeDecryptException;
 use OCA\Mail\Service\AccountService;
 use OCA\Mail\Service\ContextChat\TaskService;
-use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -33,7 +33,7 @@ class SubmitContentJob extends TimedJob {
 		ITimeFactory $time,
 		private TaskService $taskService,
 		private AccountService $accountService,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private MessageMapper $messageMapper,
 		private ContextChatProvider $contextChatProvider,
 		private IContentManager $contentManager,

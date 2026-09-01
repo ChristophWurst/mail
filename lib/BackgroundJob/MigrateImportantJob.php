@@ -10,12 +10,12 @@ declare(strict_types=1);
 namespace OCA\Mail\BackgroundJob;
 
 use OCA\Mail\Account;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\MailAccountMapper;
 use OCA\Mail\Db\MailboxMapper;
 use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\Migration\MigrateImportantFromImapAndDb;
 use OCA\Mail\Protocol\ProtocolFactory;
-use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
@@ -25,7 +25,7 @@ class MigrateImportantJob extends QueuedJob {
 	public function __construct(
 		private MailboxMapper $mailboxMapper,
 		private MailAccountMapper $mailAccountMapper,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private MigrateImportantFromImapAndDb $migration,
 		private LoggerInterface $logger,
 		ITimeFactory $timeFactory,

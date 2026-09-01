@@ -13,13 +13,13 @@ use JsonException;
 use OCA\Mail\Account;
 use OCA\Mail\AppInfo\Application;
 use OCA\Mail\ConfigLexicon;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\Mailbox;
 use OCA\Mail\Db\Message;
 use OCA\Mail\Exception\PotentialPromptInjectionException;
 use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\Model\EventData;
 use OCA\Mail\Model\IMAPMessage;
-use OCA\Mail\Service\MailManager;
 use OCP\IAppConfig;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
@@ -41,7 +41,7 @@ class AiIntegrationsService {
 	public function __construct(
 		private LoggerInterface $logger,
 		private Cache $cache,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private TaskProcessingManager $taskProcessingManager,
 		private IFactory $l10nFactory,
 		private IUserManager $userManager,

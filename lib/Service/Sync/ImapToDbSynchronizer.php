@@ -14,6 +14,7 @@ use Horde_Imap_Client_Base;
 use Horde_Imap_Client_Exception;
 use Horde_Imap_Client_Ids;
 use OCA\Mail\Account;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\Mailbox;
 use OCA\Mail\Db\MailboxMapper;
 use OCA\Mail\Db\MessageMapper as DatabaseMessageMapper;
@@ -34,7 +35,6 @@ use OCA\Mail\IMAP\Sync\Synchronizer;
 use OCA\Mail\Model\IMAPMessage;
 use OCA\Mail\Protocol\ProtocolFactory;
 use OCA\Mail\Service\Classification\NewMessagesClassifier;
-use OCA\Mail\Service\MailManager;
 use OCA\Mail\Support\PerformanceLogger;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -63,7 +63,7 @@ class ImapToDbSynchronizer {
 		IEventDispatcher $dispatcher,
 		private PerformanceLogger $performanceLogger,
 		private LoggerInterface $logger,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private TagMapper $tagMapper,
 		private NewMessagesClassifier $newMessagesClassifier,
 	) {

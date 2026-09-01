@@ -11,13 +11,13 @@ namespace OCA\Mail\Service\Classification;
 
 use Horde_Imap_Client;
 use OCA\Mail\Account;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\Mailbox;
 use OCA\Mail\Db\Message;
 use OCA\Mail\Db\Tag;
 use OCA\Mail\Db\TagMapper;
 use OCA\Mail\Exception\ClientException;
 use OCA\Mail\Exception\ServiceException;
-use OCA\Mail\Service\MailManager;
 use Psr\Log\LoggerInterface;
 
 class NewMessagesClassifier {
@@ -33,7 +33,7 @@ class NewMessagesClassifier {
 		private ImportanceClassifier $classifier,
 		private TagMapper $tagMapper,
 		private LoggerInterface $logger,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 	) {
 	}
 

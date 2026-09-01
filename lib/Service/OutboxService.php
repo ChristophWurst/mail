@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\Mail\Service;
 
 use OCA\Mail\Account;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\LocalMessage;
 use OCA\Mail\Db\LocalMessageMapper;
 use OCA\Mail\Db\Recipient;
@@ -39,7 +40,7 @@ class OutboxService {
 		private AttachmentService $attachmentService,
 		IEventDispatcher $eventDispatcher,
 		private ProtocolFactory $protocolFactory,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private AccountService $accountService,
 		ITimeFactory $timeFactory,
 		private LoggerInterface $logger,

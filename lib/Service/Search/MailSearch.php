@@ -11,6 +11,7 @@ namespace OCA\Mail\Service\Search;
 
 use Horde_Imap_Client;
 use OCA\Mail\Account;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Contracts\IMailSearch;
 use OCA\Mail\Db\Mailbox;
 use OCA\Mail\Db\Message;
@@ -20,7 +21,6 @@ use OCA\Mail\Exception\MailboxLockedException;
 use OCA\Mail\Exception\MailboxNotCachedException;
 use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\IMAP\PreviewEnhancer;
-use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IUser;
@@ -31,7 +31,7 @@ class MailSearch implements IMailSearch {
 
 	public function __construct(
 		private FilterStringParser $filterStringParser,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private MessageMapper $messageMapper,
 		private PreviewEnhancer $previewEnhancer,
 		ITimeFactory $timeFactory,

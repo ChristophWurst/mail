@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace OCA\Mail\Controller;
 
 use OCA\Mail\Contracts\IDkimService;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Db\LocalMessage;
 use OCA\Mail\Exception\ClientException;
 use OCA\Mail\Exception\ServiceException;
@@ -23,7 +24,6 @@ use OCA\Mail\Service\Attachment\AttachmentService;
 use OCA\Mail\Service\Attachment\UploadedFile;
 use OCA\Mail\Service\DelegationService;
 use OCA\Mail\Service\ItineraryService;
-use OCA\Mail\Service\MailManager;
 use OCA\Mail\Service\OutboxService;
 use OCA\Mail\Service\TrustedSenderService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -57,7 +57,7 @@ class MessageApiController extends OCSController {
 		private AliasesService $aliasesService,
 		private AttachmentService $attachmentService,
 		private OutboxService $outboxService,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private LoggerInterface $logger,
 		private ITimeFactory $time,
 		private IURLGenerator $urlGenerator,

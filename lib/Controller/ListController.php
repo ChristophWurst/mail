@@ -11,10 +11,10 @@ namespace OCA\Mail\Controller;
 
 use Exception;
 use OCA\Mail\AppInfo\Application;
+use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\Http\JsonResponse;
 use OCA\Mail\Service\AccountService;
 use OCA\Mail\Service\DelegationService;
-use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -29,7 +29,7 @@ class ListController extends Controller {
 
 	public function __construct(
 		IRequest $request,
-		private MailManager $mailManager,
+		private IMailManager $mailManager,
 		private AccountService $accountService,
 		IClientService $httpClientService,
 		private LoggerInterface $logger,
